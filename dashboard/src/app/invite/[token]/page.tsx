@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
 import { Users, CheckCircle, XCircle, Loader } from 'lucide-react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, "");
 
 export default function InvitePage() {
   const params = useParams<{ token: string }>();

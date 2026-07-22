@@ -11,7 +11,7 @@ import { IntegrationGuide } from '@/components/IntegrationGuide';
 import { TeamsManager } from '@/components/TeamsManager';
 import { BookOpen, GitCommit, Bot, Terminal, Plus, Database, Users, LogIn, Loader, FolderKanban } from 'lucide-react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, "");
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'context' | 'decisions' | 'sessions' | 'integration' | 'teams'>('context');
