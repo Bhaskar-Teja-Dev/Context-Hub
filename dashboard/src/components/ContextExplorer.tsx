@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import { Search, FileText, Plus, Sparkles, Filter, Database, BookOpen } from 'lucide-react';
 
 interface Document {
-  id: str;
-  category: str;
-  title: str;
-  body: str;
-  updated_at: str;
+  id: string;
+  category: string;
+  title: string;
+  body: string;
+  updated_at: string;
   similarity?: number;
 }
 
@@ -124,7 +124,7 @@ export const ContextExplorer: React.FC<ContextExplorerProps> = ({
           </div>
         ) : (
           filteredDocs.map(doc => (
-            <div key={doc.id} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyBetween: 'space-between' }}>
+            <div key={doc.id} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                   <span className={`badge ${doc.category === 'architecture' ? 'badge-cyan' : doc.category === 'api' ? 'badge-purple' : 'badge-emerald'}`}>
