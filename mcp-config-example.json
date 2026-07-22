@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "contexthub": {
+      "command": "c:\\Users\\bhask\\OneDrive\\Desktop\\Context-Hub\\backend\\venv\\Scripts\\python.exe",
+      "args": [
+        "c:\\Users\\bhask\\OneDrive\\Desktop\\Context-Hub\\backend\\app\\mcp_server.py"
+      ],
+      "env": {
+        "CONTEXTHUB_API_KEY": "ch_live_your_api_key_here",
+        "CONTEXTHUB_PROJECT_ID": "your_project_uuid_here"
+      }
+    }
+  }
+}

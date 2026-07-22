@@ -1,0 +1,139 @@
+# =============================================================================
+# ContextHub — .gitignore
+# Python (FastAPI backend) + Node.js/Next.js (dashboard) + Supabase
+# =============================================================================
+
+# ─── Secrets & Environment ───────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+MANIFEST
+.installed.cfg
+lib/
+lib64/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+.env/
+pythonenv*/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+pytest.ini
+*.log
+
+# Type checkers & linters
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pyright/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# PyInstaller
+*.spec
+
+# Sentence-transformers / ML model cache
+.cache/
+*.pt
+*.bin
+*.safetensors
+sentence_transformers_cache/
+
+# ─── Node.js / Next.js ───────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Next.js build output
+.next/
+out/
+
+# Production build
+dashboard/dist/
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ESLint / Prettier caches
+.eslintcache
+.prettiercache
+
+# ─── Supabase ────────────────────────────────────────────────────────────────
+supabase/.temp/
+supabase/.branches/
+supabase/functions/*/node_modules/
+
+# ─── IDEs & Editors ──────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+
+# ─── OS generated ────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── Misc ────────────────────────────────────────────────────────────────────
+*.bak
+*.tmp
+*.orig
+*.rej
+
+
+#supabase
+/supabase
