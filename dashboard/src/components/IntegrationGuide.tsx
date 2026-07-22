@@ -34,12 +34,11 @@ export const IntegrationGuide: React.FC<IntegrationGuideProps> = ({ apiKey, proj
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/client-sse",
-        "${sseUrl}"
-      ],
-      "env": {
-        "X_API_KEY": "${effectiveKey}"
-      }
+        "mcp-remote",
+        "${sseUrl}",
+        "--header",
+        "X-API-Key: ${effectiveKey}"
+      ]
     }
   }
 }`;
@@ -89,12 +88,11 @@ Environment Variables:
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/client-sse",
-        "${sseUrl}"
-      ],
-      "env": {
-        "X_API_KEY": "${effectiveKey}"
-      }
+        "mcp-remote",
+        "${sseUrl}",
+        "--header",
+        "X-API-Key: ${effectiveKey}"
+      ]
     }
   }
 }`;

@@ -31,12 +31,11 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, apiKe
             "command": "npx",
             "args": [
               "-y",
-              "@modelcontextprotocol/client-sse",
-              sseUrl
-            ],
-            "env": {
-              "X_API_KEY": apiKey || "ch_live_demo1234567890abcdef"
-            }
+              "mcp-remote",
+              sseUrl,
+              "--header",
+              `X-API-Key: ${apiKey || "ch_live_demo1234567890abcdef"}`
+            ]
           }
         }
       }, null, 2)
