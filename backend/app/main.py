@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from app.routers import health, projects, context, decisions, features, sessions
+from app.routers.teams import router as teams_router
 from app.mcp_server import mcp_app
 from mcp.server.sse import SseServerTransport
 
@@ -44,6 +45,7 @@ app.include_router(context.router)
 app.include_router(decisions.router)
 app.include_router(features.router)
 app.include_router(sessions.router)
+app.include_router(teams_router)
 
 # MCP SSE Transport endpoint setup
 sse_transport = SseServerTransport("/messages/")

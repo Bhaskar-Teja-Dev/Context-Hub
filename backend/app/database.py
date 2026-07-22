@@ -38,6 +38,10 @@ class InMemoryDB:
         self.tasks: Dict[str, Dict[str, Any]] = {}
         self.sessions: Dict[str, Dict[str, Any]] = {}
         self.agent_notes: Dict[str, Dict[str, Any]] = {}
+        # Teams & Collaboration
+        self.teams: Dict[str, Dict[str, Any]] = {}
+        self.team_members: Dict[str, Dict[str, Any]] = {}
+        self.invitations: Dict[str, Dict[str, Any]] = {}
 
         # Default demo setup
         self._init_demo()
