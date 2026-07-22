@@ -13,12 +13,13 @@ def get_embedding_model():
         return None
     if _model is None:
         try:
-            from sentence_transformers import SentenceTransformer
-            logger.info(f"Loading embedding model: {settings.EMBEDDING_MODEL_NAME}")
-            _model = SentenceTransformer(settings.EMBEDDING_MODEL_NAME)
+            from fastembed import TextEmbedding
+            logger.info(f"Loading fastembed ONNX model: {settings.EMBEDDING_MODEL_NAME}")
+            # fastembed downloads and caches the ONNX model (~25MB, no PyTorch needed)
+            _model = TextEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
             logger.info("Embedding model loaded successfully.")
         except Exception as e:
-            logger.warning(f"Failed to load sentence-transformers model ({e}). Fallback to deterministic pseudo-embedding.")
+            logger.warning(f"Failed to load fastembed model ({e}). Falling back to deterministic pseudo-embeddings.")
             _model = None
     return _model
 
@@ -30,20 +31,20 @@ def generate_embedding(text: str) -> List[float]:
     model = get_embedding_model()
     if model is not None:
         try:
-            embedding = model.encode(text, convert_to_numpy=True).tolist()
-            return [float(x) for x in embedding]
+            # fastembed returns a generator — consume the first result
+            embeddings = list(model.embed([text]))
+            return [float(x) for x in embeddings[0].tolist()]
         except Exception as e:
-            logger.error(f"Error producing sentence-transformers embedding: {e}")
+            logger.error(f"Error producing fastembed embedding: {e}")
 
-    # Fallback deterministic pseudo-embedding generator (384-dim normalized vector)
+    # Fallback: deterministic pseudo-embedding (fast, no deps, 384-dim normalized)
     seed = text.encode("utf-8")
     floats = []
     for i in range(384):
         h = hashlib.sha256(seed + i.to_bytes(4, "big")).digest()
         val = (int.from_bytes(h[:4], "big") / 4294967295.0) * 2.0 - 1.0
         floats.append(val)
-    
-    # Normalize length
+
     norm = sum(x * x for x in floats) ** 0.5
     if norm > 0:
         floats = [x / norm for x in floats]
