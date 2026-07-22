@@ -12,7 +12,7 @@ export const IntegrationGuide: React.FC<IntegrationGuideProps> = ({ apiKey, proj
   const [activeTab, setActiveTab] = useState<'claude' | 'cursor' | 'windsurf' | 'chatgpt' | 'rest'>('claude');
   const [copied, setCopied] = useState(false);
   const [configMode, setConfigMode] = useState<'cloud' | 'local'>('cloud');
-  const [localPath, setLocalPath] = useState('C:\\Users\\bhask\\OneDrive\\Desktop\\Context-Hub');
+  const [localPath, setLocalPath] = useState('C:\\path\\to\\Context-Hub');
   const [backendUrl, setBackendUrl] = useState(
     process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
   );
