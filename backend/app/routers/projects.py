@@ -9,11 +9,16 @@ from app.database import get_supabase, db_mem, hash_api_key
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Projects & API Keys"])
 
+from app.auth import get_current_user
+
 @router.post("", response_model=Dict[str, Any])
-def create_project(payload: ProjectCreate):
-    """Creates a new account (if missing), project, and initial API key."""
+def create_project(
+    payload: ProjectCreate,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Creates a new project and initial API key for the authenticated user."""
     sp = get_supabase()
-    account_id = None
+    account_id = current_user["id"]
     project_id = str(uuid.uuid4())
     raw_key = f"ch_live_{secrets.token_hex(16)}"
     key_hash = hash_api_key(raw_key)
@@ -22,17 +27,12 @@ def create_project(payload: ProjectCreate):
 
     if sp:
         try:
-            # Check or create account
-            acc_res = sp.table("accounts").select("*").eq("email", payload.email).execute()
-            if acc_res.data and len(acc_res.data) > 0:
-                account_id = acc_res.data[0]["id"]
-            else:
-                account_id = str(uuid.uuid4())
-                sp.table("accounts").insert({
-                    "id": account_id,
-                    "email": payload.email,
-                    "plan": "free"
-                }).execute()
+            # Ensure user account exists in public schema (should be done by trigger, fallback here)
+            sp.table("accounts").insert({
+                "id": account_id,
+                "email": current_user["email"],
+                "plan": "free"
+            }).on_conflict("id").ignore().execute()
 
             # Create project
             proj_res = sp.table("projects").insert({
@@ -65,16 +65,10 @@ def create_project(payload: ProjectCreate):
             raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
     # In-memory fallback
-    account_id = str(uuid.uuid4())
-    for acc in db_mem.accounts.values():
-        if acc["email"] == payload.email:
-            account_id = acc["id"]
-            break
-
     if account_id not in db_mem.accounts:
         db_mem.accounts[account_id] = {
             "id": account_id,
-            "email": payload.email,
+            "email": current_user["email"],
             "created_at": now_str,
             "plan": "free"
         }
@@ -87,9 +81,8 @@ def create_project(payload: ProjectCreate):
         "created_at": now_str
     }
 
-    key_id = str(uuid.uuid4())
     db_mem.api_keys[key_hash] = {
-        "id": key_id,
+        "id": str(uuid.uuid4()),
         "account_id": account_id,
         "project_id": project_id,
         "key_hash": key_hash,
@@ -107,26 +100,42 @@ def create_project(payload: ProjectCreate):
     }
 
 @router.get("", response_model=List[Dict[str, Any]])
-def list_projects(email: str):
-    """Lists projects associated with an account email."""
+def list_projects(current_user: Dict[str, Any] = Depends(get_current_user)):
+    """Lists projects owned by user or shared via team membership."""
     sp = get_supabase()
+    user_id = current_user["id"]
     if sp:
         try:
-            acc_res = sp.table("accounts").select("id").eq("email", email).execute()
-            if not acc_res.data:
-                return []
-            acc_id = acc_res.data[0]["id"]
-            proj_res = sp.table("projects").select("*").eq("account_id", acc_id).execute()
-            return proj_res.data
+            # 1. Teams the user belongs to
+            teams_res = sp.table("team_members").select("team_id").eq("user_id", user_id).execute()
+            team_ids = [t["team_id"] for t in teams_res.data] if teams_res.data else []
+
+            # 2. Get projects owned by user OR linked to user's teams
+            # Supabase doesn't support complex OR filters across related tables in a single filter easily
+            # so we fetch both and merge them or use a SQL query.
+            # Fetch owned projects:
+            owned_res = sp.table("projects").select("*").eq("account_id", user_id).execute()
+            projects_list = owned_res.data or []
+
+            # Fetch team projects if any teams:
+            if team_ids:
+                team_res = sp.table("projects").select("*").in_("team_id", team_ids).execute()
+                if team_res.data:
+                    owned_ids = {p["id"] for p in projects_list}
+                    for p in team_res.data:
+                        if p["id"] not in owned_ids:
+                            projects_list.append(p)
+
+            return projects_list
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
     # In-memory search
-    acc_id = None
-    for acc in db_mem.accounts.values():
-        if acc["email"] == email:
-            acc_id = acc["id"]
-            break
-    if not acc_id:
-        return []
-    return [p for p in db_mem.projects.values() if p["account_id"] == acc_id]
+    owned = [p for p in db_mem.projects.values() if p["account_id"] == user_id]
+    
+    # Team shared
+    teams = [m["team_id"] for m in db_mem.team_members.values() if m["user_id"] == user_id]
+    shared = [p for p in db_mem.projects.values() if p.get("team_id") in teams]
+    
+    merged = {p["id"]: p for p in owned + shared}
+    return list(merged.values())
